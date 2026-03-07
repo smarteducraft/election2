@@ -6,7 +6,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0"
   />
-  <title>학급 선거 도우미(V3.01)</title>
+  <title>학급 선거 도우미(V3.02)</title>
 
   <!--
     학급 선거 도우미
@@ -25,6 +25,12 @@
     - 모바일 100vh 대응(--vh) 처리
     - 작은 화면에서 단계/카드/결과 화면 자동 축소 및 재배치
     - 하단 네비게이션과 결과 화면 스크롤 구조 안정화
+
+    V3.02
+    - 투표 단계에 후보 기호/이름 터치 투표 버튼 추가
+    - 태블릿/스마트폰에서 터치 투표 가능하도록 개선
+    - 투표 화면 반응형 레이아웃 보강(가로/세로 모드 대응 강화)
+    - 모바일에서 투표 안내/진행상황/후보 버튼 영역 재배치 최적화
   -->
 
   <style>
@@ -775,7 +781,8 @@
     .btn-cyan,
     .btn-secondary,
     .footer-btn,
-    .modal-actions button {
+    .modal-actions button,
+    .vote-touch-btn {
       touch-action: manipulation;
     }
 
@@ -1016,6 +1023,13 @@
       gap: 16px;
     }
 
+    .vote-left-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
     .vote-panel {
       border-radius: 34px;
       border: 1px solid #ffe8a8;
@@ -1101,6 +1115,113 @@
       font-weight: 900;
       color: #33506d;
       font-size: clamp(15px, 0.92vw, 20px);
+    }
+
+    .vote-touch-box {
+      border-radius: 30px;
+      border: 1px solid #dfe9ff;
+      background: linear-gradient(180deg, #f9fbff, #fff8fd);
+      box-shadow: var(--shadow-soft);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vote-touch-box::after {
+      content: "👆";
+      position: absolute;
+      right: 16px;
+      top: 12px;
+      font-size: 26px;
+      opacity: 0.85;
+    }
+
+    .vote-touch-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .vote-touch-title {
+      font-size: clamp(20px, 1.3vw, 28px);
+      font-weight: 900;
+      color: #355270;
+    }
+
+    .vote-touch-sub {
+      font-size: clamp(14px, 0.95vw, 18px);
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .vote-touch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .vote-touch-btn {
+      min-height: 92px;
+      border: 1px solid #d7e8ff;
+      background: white;
+      border-radius: 24px;
+      padding: 14px 16px;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+    }
+
+    .vote-touch-btn:hover {
+      transform: translateY(-2px);
+      background: #fbfeff;
+      border-color: #bfe2ff;
+    }
+
+    .vote-touch-btn:active {
+      transform: scale(0.98);
+    }
+
+    .vote-touch-num {
+      width: 58px;
+      height: 58px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #50c8ff, #7c88ff);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: clamp(22px, 1.6vw, 30px);
+      font-weight: 900;
+      flex: 0 0 auto;
+      box-shadow: 0 12px 22px rgba(82,197,255,0.24);
+    }
+
+    .vote-touch-info {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .vote-touch-label {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--muted-soft);
+    }
+
+    .vote-touch-name {
+      font-size: clamp(20px, 1.2vw, 28px);
+      font-weight: 900;
+      color: #2f4f6d;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .vote-progress-card {
@@ -2002,7 +2123,10 @@
       .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
       .vote-layout,
       .counting-layout { grid-template-columns: 1fr; }
+      .vote-left-stack { order: 1; }
+      .vote-progress-card { order: 2; }
       .count-right { min-height: 220px; }
+      .vote-touch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     /* 세로 태블릿 / 큰 폰 */
@@ -2070,6 +2194,10 @@
       .vote-guide-head {
         flex-direction: column;
         text-align: center;
+      }
+
+      .vote-touch-grid {
+        grid-template-columns: 1fr 1fr;
       }
 
       .result-inline-board {
@@ -2219,7 +2347,8 @@
       .btn-blue-lg,
       .btn-cyan,
       .btn-secondary,
-      .footer-btn {
+      .footer-btn,
+      .vote-touch-btn {
         border-radius: 16px;
       }
 
@@ -2345,6 +2474,7 @@
 
       .vote-panel,
       .vote-progress-card,
+      .vote-touch-box,
       .count-left,
       .count-right {
         border-radius: 22px;
@@ -2363,7 +2493,8 @@
       }
 
       .vote-guide-head p,
-      .vote-progress-help {
+      .vote-progress-help,
+      .vote-touch-sub {
         font-size: 14px;
       }
 
@@ -2380,6 +2511,39 @@
         padding: 10px 12px;
         font-size: 14px;
         border-radius: 14px;
+      }
+
+      .vote-touch-head {
+        margin-bottom: 10px;
+      }
+
+      .vote-touch-title {
+        font-size: 18px;
+      }
+
+      .vote-touch-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .vote-touch-btn {
+        min-height: 80px;
+        padding: 12px 14px;
+      }
+
+      .vote-touch-num {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        font-size: 20px;
+      }
+
+      .vote-touch-label {
+        font-size: 12px;
+      }
+
+      .vote-touch-name {
+        font-size: 18px;
       }
 
       .vote-progress-card .label {
@@ -2708,6 +2872,7 @@
       .speaker-card,
       .vote-panel,
       .vote-progress-card,
+      .vote-touch-box,
       .count-left,
       .count-right,
       .winner-card,
@@ -2719,6 +2884,25 @@
 
       .speaker-name-big {
         font-size: clamp(26px, 6vw, 44px);
+      }
+
+      .vote-touch-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .vote-touch-btn {
+        min-height: 72px;
+      }
+
+      .vote-touch-num {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        font-size: 18px;
+      }
+
+      .vote-touch-name {
+        font-size: 16px;
       }
 
       .count-name {
@@ -2870,24 +3054,37 @@
                   <div class="section-icon">🗳️</div>
                   <div>
                     <div class="section-title">비밀 투표 중</div>
-                    <div class="section-desc">희망하는 후보의 기호 숫자를 눌러 주세요. 입력한 숫자는 화면에 보이지 않습니다.</div>
+                    <div class="section-desc">PC에서는 숫자 키, 태블릿/스마트폰에서는 후보 버튼을 눌러 투표할 수 있어요.</div>
                   </div>
                 </div>
               </div>
               <div class="vote-layout">
-                <div class="vote-panel">
-                  <div class="vote-guide-head">
-                    <div class="vote-key-icon">⌨️</div>
-                    <div>
-                      <h3>숫자 키를 눌러 투표하세요</h3>
-                      <p>등록되지 않은 숫자는 무효표로 기록됩니다.</p>
+                <div class="vote-left-stack">
+                  <div class="vote-panel">
+                    <div class="vote-guide-head">
+                      <div class="vote-key-icon">⌨️</div>
+                      <div>
+                        <h3>숫자 키 또는 후보 버튼으로 투표하세요</h3>
+                        <p>등록되지 않은 숫자는 무효표로 기록됩니다.</p>
+                      </div>
+                    </div>
+                    <div class="vote-note-box">
+                      <div class="label">등록된 후보 기호</div>
+                      <div class="vote-note-chips" id="voteNoteChips"></div>
                     </div>
                   </div>
-                  <div class="vote-note-box">
-                    <div class="label">등록된 후보 기호</div>
-                    <div class="vote-note-chips" id="voteNoteChips"></div>
+
+                  <div class="vote-touch-box">
+                    <div class="vote-touch-head">
+                      <div>
+                        <div class="vote-touch-title">터치 투표 버튼</div>
+                        <div class="vote-touch-sub">태블릿과 스마트폰에서는 아래 후보 버튼을 눌러 투표할 수 있어요.</div>
+                      </div>
+                    </div>
+                    <div class="vote-touch-grid" id="voteTouchGrid"></div>
                   </div>
                 </div>
+
                 <div class="vote-progress-card">
                   <div>
                     <div class="label">투표 진행 상황</div>
@@ -2981,7 +3178,7 @@
   </div>
 
   <script>
-    const APP_VERSION = 'V3.01';
+    const APP_VERSION = 'V3.02';
 
     const STEPS = ['종류', '인원', '후보', '발표', '투표', '개표', '결과'];
     const ELECTION_TYPES = ['학급 회장', '학급 부회장(남)', '학급 부회장(여)', '기타(직접 입력)'];
@@ -3020,6 +3217,7 @@
       speakerStage: $('#speakerStage'),
       speakerChips: $('#speakerChips'),
       voteNoteChips: $('#voteNoteChips'),
+      voteTouchGrid: $('#voteTouchGrid'),
       voteProgressCurrent: $('#voteProgressCurrent'),
       voteProgressTotal: $('#voteProgressTotal'),
       voteProgressFill: $('#voteProgressFill'),
@@ -3314,17 +3512,10 @@
       }
     }
 
-    function handleVoteKey(e) {
+    function registerVoteByValue(value) {
       if (state.currentStep !== 4 || state.isVotingComplete) return;
 
-      const tag = document.activeElement?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-
-      if (!/^[0-9]$/.test(e.key)) return;
-
-      const symbol = parseInt(e.key, 10);
-      const candidate = state.candidates.find(c => c.id === symbol);
-
+      const candidate = state.candidates.find(c => c.id === value);
       playSound('dingdong');
       state.voteList.push(candidate ? candidate.id : 'invalid');
 
@@ -3334,6 +3525,18 @@
       }
 
       render();
+    }
+
+    function handleVoteKey(e) {
+      if (state.currentStep !== 4 || state.isVotingComplete) return;
+
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+      if (!/^[0-9]$/.test(e.key)) return;
+
+      const symbol = parseInt(e.key, 10);
+      registerVoteByValue(symbol);
     }
 
     function downloadTxt() {
@@ -3573,12 +3776,27 @@
 
     function renderVoting() {
       refs.voteNoteChips.innerHTML = '';
+      refs.voteTouchGrid.innerHTML = '';
 
       state.candidates.forEach(cand => {
         const chip = document.createElement('div');
         chip.className = 'vote-note-chip';
         chip.textContent = `${cand.id}번 ${cand.name}`;
         refs.voteNoteChips.appendChild(chip);
+
+        const touchBtn = document.createElement('button');
+        touchBtn.className = 'vote-touch-btn';
+        touchBtn.innerHTML = `
+          <div class="vote-touch-num">${cand.id}</div>
+          <div class="vote-touch-info">
+            <div class="vote-touch-label">기호 ${cand.id}번</div>
+            <div class="vote-touch-name">${cand.name}</div>
+          </div>
+        `;
+        touchBtn.addEventListener('click', () => {
+          registerVoteByValue(cand.id);
+        });
+        refs.voteTouchGrid.appendChild(touchBtn);
       });
 
       refs.voteProgressCurrent.textContent = state.voteList.length;
