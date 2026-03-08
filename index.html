@@ -6,7 +6,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0"
   />
-  <title>학급 선거 도우미(V3.02)</title>
+  <title>학급 선거 도우미(V3.03)</title>
 
   <!--
     학급 선거 도우미
@@ -31,6 +31,14 @@
     - 태블릿/스마트폰에서 터치 투표 가능하도록 개선
     - 투표 화면 반응형 레이아웃 보강(가로/세로 모드 대응 강화)
     - 모바일에서 투표 안내/진행상황/후보 버튼 영역 재배치 최적화
+
+    V3.03
+    - 스마트기기 터치 투표 버튼을 본 화면 고정 출력에서 팝업 방식으로 변경
+    - "스마트기기 사용 투표" 버튼 클릭 시 후보 선택 팝업 표시
+    - 스마트기기 투표 팝업은 전체 투표가 끝날 때까지 유지되도록 개선
+    - 후보가 많을 때 팝업 내부 스크롤로 가려짐 문제 개선
+    - 투표 입력 사이 2초 대기 시간 추가하여 오입력 방지
+    - 투표 안내 문구를 숫자 입력 중심 문구로 수정
   -->
 
   <style>
@@ -782,7 +790,8 @@
     .btn-secondary,
     .footer-btn,
     .modal-actions button,
-    .vote-touch-btn {
+    .smart-device-btn,
+    .vote-popup-btn {
       touch-action: manipulation;
     }
 
@@ -1117,18 +1126,18 @@
       font-size: clamp(15px, 0.92vw, 20px);
     }
 
-    .vote-touch-box {
+    .smart-device-box {
       border-radius: 30px;
       border: 1px solid #dfe9ff;
       background: linear-gradient(180deg, #f9fbff, #fff8fd);
       box-shadow: var(--shadow-soft);
-      padding: 20px;
+      padding: 18px 20px;
       position: relative;
       overflow: hidden;
     }
 
-    .vote-touch-box::after {
-      content: "👆";
+    .smart-device-box::after {
+      content: "📱";
       position: absolute;
       right: 16px;
       top: 12px;
@@ -1136,92 +1145,61 @@
       opacity: 0.85;
     }
 
-    .vote-touch-head {
+    .smart-device-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 14px;
       flex-wrap: wrap;
     }
 
-    .vote-touch-title {
+    .smart-device-text {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .smart-device-title {
       font-size: clamp(20px, 1.3vw, 28px);
       font-weight: 900;
       color: #355270;
     }
 
-    .vote-touch-sub {
-      font-size: clamp(14px, 0.95vw, 18px);
+    .smart-device-desc {
+      margin-top: 6px;
+      font-size: clamp(14px, 0.96vw, 18px);
       font-weight: 800;
       color: var(--muted);
     }
 
-    .vote-touch-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .vote-touch-btn {
-      min-height: 92px;
-      border: 1px solid #d7e8ff;
-      background: white;
-      border-radius: 24px;
-      padding: 14px 16px;
+    .smart-device-btn {
+      border: none;
+      border-radius: 20px;
+      padding: 14px 22px;
+      background: linear-gradient(90deg, #52c5ff, #7c88ff, #ffa2cf);
+      color: white;
+      font-size: clamp(16px, 1vw, 20px);
+      font-weight: 900;
       cursor: pointer;
       box-shadow: var(--shadow-soft);
       transition: 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-align: left;
-    }
-
-    .vote-touch-btn:hover {
-      transform: translateY(-2px);
-      background: #fbfeff;
-      border-color: #bfe2ff;
-    }
-
-    .vote-touch-btn:active {
-      transform: scale(0.98);
-    }
-
-    .vote-touch-num {
-      width: 58px;
-      height: 58px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #50c8ff, #7c88ff);
-      color: white;
-      display: grid;
-      place-items: center;
-      font-size: clamp(22px, 1.6vw, 30px);
-      font-weight: 900;
-      flex: 0 0 auto;
-      box-shadow: 0 12px 22px rgba(82,197,255,0.24);
-    }
-
-    .vote-touch-info {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .vote-touch-label {
-      font-size: 14px;
-      font-weight: 900;
-      color: var(--muted-soft);
-    }
-
-    .vote-touch-name {
-      font-size: clamp(20px, 1.2vw, 28px);
-      font-weight: 900;
-      color: #2f4f6d;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex: 0 0 auto;
+    }
+
+    .smart-device-btn:active { transform: scale(0.98); }
+
+    .smart-device-status {
+      margin-top: 12px;
+      font-size: clamp(14px, 0.92vw, 17px);
+      color: #6a7f95;
+      font-weight: 800;
+    }
+
+    .vote-cooldown-note {
+      margin-top: 8px;
+      font-size: clamp(15px, 0.95vw, 18px);
+      color: #ff7b7b;
+      font-weight: 900;
     }
 
     .vote-progress-card {
@@ -2063,6 +2041,197 @@
       flex: 0 0 auto;
     }
 
+    /* 스마트기기 투표 팝업 */
+    .vote-popup-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(54, 75, 99, 0.32);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 950;
+      padding:
+        max(12px, var(--safe-top))
+        max(12px, var(--safe-right))
+        max(12px, var(--safe-bottom))
+        max(12px, var(--safe-left));
+      backdrop-filter: blur(6px);
+    }
+
+    .vote-popup-backdrop.show {
+      display: flex;
+    }
+
+    .vote-popup {
+      width: 100%;
+      max-width: 980px;
+      max-height: min(86vh, 920px);
+      border-radius: 34px;
+      background: rgba(255,255,255,0.98);
+      box-shadow: 0 26px 70px rgba(83, 140, 200, 0.22);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255,255,255,0.95);
+      animation: zoomIn 0.2s ease-out;
+      position: relative;
+    }
+
+    .vote-popup::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 8px;
+      background: linear-gradient(90deg, #67d7ff, #8390ff, #ffa2cf, #ffd86d);
+      z-index: 1;
+    }
+
+    .vote-popup-head {
+      padding: 24px 26px 18px;
+      border-bottom: 1px solid var(--line-soft);
+      position: relative;
+      flex: 0 0 auto;
+      background: linear-gradient(180deg, #f8fdff, #fff9fd);
+    }
+
+    .vote-popup-head-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .vote-popup-title-wrap {
+      min-width: 0;
+    }
+
+    .vote-popup-kicker {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--muted-soft);
+      margin-bottom: 6px;
+    }
+
+    .vote-popup-title {
+      font-size: clamp(26px, 2.2vw, 42px);
+      font-weight: 900;
+      color: #2a4866;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+
+    .vote-popup-sub {
+      margin-top: 8px;
+      font-size: clamp(15px, 0.98vw, 18px);
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .vote-popup-lock {
+      margin-top: 10px;
+      font-size: clamp(15px, 0.95vw, 18px);
+      font-weight: 900;
+      color: #ff7a7a;
+    }
+
+    .vote-popup-badge {
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: #eef7ff;
+      color: #4776a3;
+      border: 1px solid #dbeafe;
+      font-size: 15px;
+      font-weight: 900;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .vote-popup-body {
+      padding: 18px 22px 22px;
+      overflow-y: auto;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .vote-popup-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .vote-popup-btn {
+      min-height: 98px;
+      border: 1px solid #d7e8ff;
+      background: white;
+      border-radius: 24px;
+      padding: 14px 16px;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+    }
+
+    .vote-popup-btn:hover {
+      transform: translateY(-2px);
+      background: #fbfeff;
+      border-color: #bfe2ff;
+    }
+
+    .vote-popup-btn:active {
+      transform: scale(0.98);
+    }
+
+    .vote-popup-btn:disabled {
+      cursor: not-allowed;
+      background: #f4f7fb;
+      border-color: #e2e8f0;
+      box-shadow: none;
+      transform: none;
+      opacity: 0.76;
+    }
+
+    .vote-popup-num {
+      width: 60px;
+      height: 60px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #50c8ff, #7c88ff);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: clamp(22px, 1.6vw, 30px);
+      font-weight: 900;
+      flex: 0 0 auto;
+      box-shadow: 0 12px 22px rgba(82,197,255,0.24);
+    }
+
+    .vote-popup-info {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .vote-popup-label {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--muted-soft);
+    }
+
+    .vote-popup-name {
+      font-size: clamp(20px, 1.2vw, 28px);
+      font-weight: 900;
+      color: #2f4f6d;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     ::-webkit-scrollbar {
       width: 10px;
       height: 10px;
@@ -2126,7 +2295,7 @@
       .vote-left-stack { order: 1; }
       .vote-progress-card { order: 2; }
       .count-right { min-height: 220px; }
-      .vote-touch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .vote-popup-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     /* 세로 태블릿 / 큰 폰 */
@@ -2196,10 +2365,6 @@
         text-align: center;
       }
 
-      .vote-touch-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
       .result-inline-board {
         flex-wrap: wrap;
         overflow: visible;
@@ -2222,6 +2387,14 @@
       .footer-btn.next,
       .footer-btn.end {
         flex-basis: 100%;
+      }
+
+      .vote-popup {
+        max-width: 760px;
+      }
+
+      .vote-popup-grid {
+        grid-template-columns: 1fr 1fr;
       }
     }
 
@@ -2348,7 +2521,8 @@
       .btn-cyan,
       .btn-secondary,
       .footer-btn,
-      .vote-touch-btn {
+      .smart-device-btn,
+      .vote-popup-btn {
         border-radius: 16px;
       }
 
@@ -2473,8 +2647,8 @@
       }
 
       .vote-panel,
+      .smart-device-box,
       .vote-progress-card,
-      .vote-touch-box,
       .count-left,
       .count-right {
         border-radius: 22px;
@@ -2494,7 +2668,8 @@
 
       .vote-guide-head p,
       .vote-progress-help,
-      .vote-touch-sub {
+      .smart-device-desc,
+      .smart-device-status {
         font-size: 14px;
       }
 
@@ -2513,37 +2688,19 @@
         border-radius: 14px;
       }
 
-      .vote-touch-head {
-        margin-bottom: 10px;
+      .smart-device-row {
+        flex-direction: column;
+        align-items: stretch;
       }
 
-      .vote-touch-title {
+      .smart-device-title {
         font-size: 18px;
       }
 
-      .vote-touch-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .vote-touch-btn {
-        min-height: 80px;
-        padding: 12px 14px;
-      }
-
-      .vote-touch-num {
-        width: 48px;
-        height: 48px;
-        border-radius: 16px;
-        font-size: 20px;
-      }
-
-      .vote-touch-label {
-        font-size: 12px;
-      }
-
-      .vote-touch-name {
-        font-size: 18px;
+      .smart-device-btn {
+        width: 100%;
+        padding: 14px 14px;
+        font-size: 16px;
       }
 
       .vote-progress-card .label {
@@ -2800,6 +2957,75 @@
         font-size: 16px;
         padding: 14px;
       }
+
+      .vote-popup-backdrop {
+        padding:
+          max(8px, var(--safe-top))
+          max(8px, var(--safe-right))
+          max(8px, var(--safe-bottom))
+          max(8px, var(--safe-left));
+      }
+
+      .vote-popup {
+        border-radius: 24px;
+        max-height: calc(var(--vh, 1vh) * 100 - 16px);
+      }
+
+      .vote-popup-head {
+        padding: 18px 16px 14px;
+      }
+
+      .vote-popup-head-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .vote-popup-kicker {
+        font-size: 12px;
+      }
+
+      .vote-popup-title {
+        font-size: clamp(22px, 7vw, 30px);
+      }
+
+      .vote-popup-sub,
+      .vote-popup-lock,
+      .vote-popup-badge {
+        font-size: 14px;
+      }
+
+      .vote-popup-badge {
+        padding: 8px 12px;
+      }
+
+      .vote-popup-body {
+        padding: 14px 14px 16px;
+      }
+
+      .vote-popup-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .vote-popup-btn {
+        min-height: 82px;
+        padding: 12px 14px;
+      }
+
+      .vote-popup-num {
+        width: 50px;
+        height: 50px;
+        border-radius: 16px;
+        font-size: 20px;
+      }
+
+      .vote-popup-label {
+        font-size: 12px;
+      }
+
+      .vote-popup-name {
+        font-size: 18px;
+      }
     }
 
     /* 낮은 높이의 가로모드 스마트폰 */
@@ -2871,8 +3097,8 @@
 
       .speaker-card,
       .vote-panel,
+      .smart-device-box,
       .vote-progress-card,
-      .vote-touch-box,
       .count-left,
       .count-right,
       .winner-card,
@@ -2886,25 +3112,6 @@
         font-size: clamp(26px, 6vw, 44px);
       }
 
-      .vote-touch-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .vote-touch-btn {
-        min-height: 72px;
-      }
-
-      .vote-touch-num {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-        font-size: 18px;
-      }
-
-      .vote-touch-name {
-        font-size: 16px;
-      }
-
       .count-name {
         font-size: clamp(28px, 7vw, 44px);
       }
@@ -2915,6 +3122,37 @@
 
       .footer-nav {
         min-height: 68px;
+      }
+
+      .vote-popup {
+        max-height: calc(var(--vh, 1vh) * 100 - 20px);
+      }
+
+      .vote-popup-head {
+        padding: 14px 16px 12px;
+      }
+
+      .vote-popup-body {
+        padding: 12px 14px 14px;
+      }
+
+      .vote-popup-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .vote-popup-btn {
+        min-height: 72px;
+      }
+
+      .vote-popup-num {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        font-size: 18px;
+      }
+
+      .vote-popup-name {
+        font-size: 16px;
       }
     }
   </style>
@@ -3054,17 +3292,18 @@
                   <div class="section-icon">🗳️</div>
                   <div>
                     <div class="section-title">비밀 투표 중</div>
-                    <div class="section-desc">PC에서는 숫자 키, 태블릿/스마트폰에서는 후보 버튼을 눌러 투표할 수 있어요.</div>
+                    <div class="section-desc">PC에서는 숫자 키를, 스마트기기에서는 전용 팝업 버튼을 눌러 투표할 수 있어요.</div>
                   </div>
                 </div>
               </div>
+
               <div class="vote-layout">
                 <div class="vote-left-stack">
                   <div class="vote-panel">
                     <div class="vote-guide-head">
                       <div class="vote-key-icon">⌨️</div>
                       <div>
-                        <h3>숫자 키 또는 후보 버튼으로 투표하세요</h3>
+                        <h3>후보자 기호에 해당하는 숫자를 눌러 투표하세요</h3>
                         <p>등록되지 않은 숫자는 무효표로 기록됩니다.</p>
                       </div>
                     </div>
@@ -3074,14 +3313,16 @@
                     </div>
                   </div>
 
-                  <div class="vote-touch-box">
-                    <div class="vote-touch-head">
-                      <div>
-                        <div class="vote-touch-title">터치 투표 버튼</div>
-                        <div class="vote-touch-sub">태블릿과 스마트폰에서는 아래 후보 버튼을 눌러 투표할 수 있어요.</div>
+                  <div class="smart-device-box">
+                    <div class="smart-device-row">
+                      <div class="smart-device-text">
+                        <div class="smart-device-title">스마트기기 사용 투표</div>
+                        <div class="smart-device-desc">태블릿이나 스마트폰에서는 전용 투표 팝업을 열어 후보 버튼을 눌러 투표할 수 있어요.</div>
                       </div>
+                      <button class="smart-device-btn" id="smartVoteOpenBtn">📱 스마트기기 사용 투표</button>
                     </div>
-                    <div class="vote-touch-grid" id="voteTouchGrid"></div>
+                    <div class="smart-device-status" id="smartVoteStatus">팝업을 열면 전체 투표가 끝날 때까지 유지됩니다.</div>
+                    <div class="vote-cooldown-note" id="voteCooldownNote" style="display:none;"></div>
                   </div>
                 </div>
 
@@ -3177,11 +3418,32 @@
     </div>
   </div>
 
+  <!-- 스마트기기 투표 팝업 -->
+  <div class="vote-popup-backdrop" id="votePopupBackdrop">
+    <div class="vote-popup" role="dialog" aria-modal="true" aria-labelledby="votePopupTitle">
+      <div class="vote-popup-head">
+        <div class="vote-popup-kicker">스마트기기 전용 투표</div>
+        <div class="vote-popup-head-row">
+          <div class="vote-popup-title-wrap">
+            <div class="vote-popup-title" id="votePopupTitle">후보 버튼을 눌러 투표하세요</div>
+            <div class="vote-popup-sub">후보가 많아도 아래 목록을 스크롤하며 선택할 수 있어요.</div>
+            <div class="vote-popup-lock" id="votePopupLockText" style="display:none;"></div>
+          </div>
+          <div class="vote-popup-badge" id="votePopupBadge">진행 중</div>
+        </div>
+      </div>
+      <div class="vote-popup-body">
+        <div class="vote-popup-grid" id="votePopupGrid"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const APP_VERSION = 'V3.02';
+    const APP_VERSION = 'V3.03';
 
     const STEPS = ['종류', '인원', '후보', '발표', '투표', '개표', '결과'];
     const ELECTION_TYPES = ['학급 회장', '학급 부회장(남)', '학급 부회장(여)', '기타(직접 입력)'];
+    const VOTE_COOLDOWN_MS = 2000;
 
     const state = {
       currentStep: 0,
@@ -3194,7 +3456,11 @@
       isVotingComplete: false,
       shuffledVotes: [],
       revealedCount: 0,
+      isVotePopupOpen: false,
+      voteCooldownUntil: 0,
     };
+
+    let voteCooldownTimer = null;
 
     const $ = (sel) => document.querySelector(sel);
     const $$ = (sel) => Array.from(document.querySelectorAll(sel));
@@ -3217,7 +3483,9 @@
       speakerStage: $('#speakerStage'),
       speakerChips: $('#speakerChips'),
       voteNoteChips: $('#voteNoteChips'),
-      voteTouchGrid: $('#voteTouchGrid'),
+      smartVoteOpenBtn: $('#smartVoteOpenBtn'),
+      smartVoteStatus: $('#smartVoteStatus'),
+      voteCooldownNote: $('#voteCooldownNote'),
       voteProgressCurrent: $('#voteProgressCurrent'),
       voteProgressTotal: $('#voteProgressTotal'),
       voteProgressFill: $('#voteProgressFill'),
@@ -3248,6 +3516,10 @@
       totalPlus: $('#totalPlus'),
       absentMinus: $('#absentMinus'),
       absentPlus: $('#absentPlus'),
+      votePopupBackdrop: $('#votePopupBackdrop'),
+      votePopupGrid: $('#votePopupGrid'),
+      votePopupBadge: $('#votePopupBadge'),
+      votePopupLockText: $('#votePopupLockText'),
     };
 
     function setViewportHeightVar() {
@@ -3420,8 +3692,12 @@
       state.isVotingComplete = false;
       state.shuffledVotes = [];
       state.revealedCount = 0;
+      state.isVotePopupOpen = false;
+      state.voteCooldownUntil = 0;
+      stopVoteCooldownTicker();
       refs.candidateInput.value = '';
       refs.customTitleInput.value = '';
+      closeVotePopup(true);
       render();
     }
 
@@ -3501,6 +3777,7 @@
       if (state.currentStep < STEPS.length - 1) {
         state.currentStep += 1;
         if (state.currentStep === 6) playSound('win');
+        if (state.currentStep !== 4) closeVotePopup(true);
         render();
       }
     }
@@ -3508,12 +3785,87 @@
     function goPrev() {
       if (state.currentStep > 0) {
         state.currentStep -= 1;
+        if (state.currentStep !== 4) closeVotePopup(true);
         render();
       }
     }
 
+    function nowMs() {
+      return Date.now();
+    }
+
+    function isVoteCooldownActive() {
+      return nowMs() < state.voteCooldownUntil;
+    }
+
+    function getVoteCooldownRemainingMs() {
+      return Math.max(0, state.voteCooldownUntil - nowMs());
+    }
+
+    function formatCooldownText(ms) {
+      const sec = Math.ceil(ms / 1000);
+      return `${sec}초 후 다음 투표가 가능합니다.`;
+    }
+
+    function stopVoteCooldownTicker() {
+      if (voteCooldownTimer) {
+        clearInterval(voteCooldownTimer);
+        voteCooldownTimer = null;
+      }
+    }
+
+    function startVoteCooldown() {
+      state.voteCooldownUntil = nowMs() + VOTE_COOLDOWN_MS;
+      stopVoteCooldownTicker();
+
+      voteCooldownTimer = setInterval(() => {
+        if (!isVoteCooldownActive()) {
+          state.voteCooldownUntil = 0;
+          stopVoteCooldownTicker();
+        }
+        renderVoteCooldownState();
+        renderVotePopup();
+      }, 100);
+    }
+
+    function renderVoteCooldownState() {
+      const active = isVoteCooldownActive() && !state.isVotingComplete;
+
+      refs.voteCooldownNote.style.display = active ? 'block' : 'none';
+      refs.voteCooldownNote.textContent = active
+        ? `⏳ ${formatCooldownText(getVoteCooldownRemainingMs())}`
+        : '';
+
+      if (state.isVotingComplete) {
+        refs.smartVoteStatus.textContent = '투표가 모두 끝났습니다.';
+      } else if (state.isVotePopupOpen) {
+        refs.smartVoteStatus.textContent = active
+          ? '스마트기기 투표 팝업이 열려 있습니다. 잠시 후 다음 투표가 가능합니다.'
+          : '스마트기기 투표 팝업이 열려 있습니다. 다음 학생이 바로 투표할 수 있어요.';
+      } else {
+        refs.smartVoteStatus.textContent = '팝업을 열면 전체 투표가 끝날 때까지 유지됩니다.';
+      }
+
+      refs.smartVoteOpenBtn.disabled = state.isVotingComplete;
+    }
+
+    function openVotePopup() {
+      if (state.currentStep !== 4 || state.isVotingComplete) return;
+      state.isVotePopupOpen = true;
+      refs.votePopupBackdrop.classList.add('show');
+      renderVotePopup();
+      renderVoteCooldownState();
+    }
+
+    function closeVotePopup(force = false) {
+      if (!force && state.currentStep === 4 && !state.isVotingComplete) return;
+      state.isVotePopupOpen = false;
+      refs.votePopupBackdrop.classList.remove('show');
+    }
+
     function registerVoteByValue(value) {
       if (state.currentStep !== 4 || state.isVotingComplete) return;
+      if (isVoteCooldownActive()) return;
 
       const candidate = state.candidates.find(c => c.id === value);
       playSound('dingdong');
@@ -3522,6 +3874,11 @@
       if (state.voteList.length >= state.counts.participating) {
         state.isVotingComplete = true;
         state.shuffledVotes = shuffleArray(state.voteList);
+        state.voteCooldownUntil = 0;
+        stopVoteCooldownTicker();
+        closeVotePopup(true);
+      } else {
+        startVoteCooldown();
       }
 
       render();
@@ -3774,29 +4131,47 @@
       });
     }
 
+    function renderVotePopup() {
+      refs.votePopupGrid.innerHTML = '';
+
+      const active = isVoteCooldownActive() && !state.isVotingComplete;
+      refs.votePopupBadge.textContent = state.isVotingComplete
+        ? '투표 완료'
+        : active
+          ? '입력 대기 중'
+          : '진행 중';
+
+      refs.votePopupLockText.style.display = active ? 'block' : 'none';
+      refs.votePopupLockText.textContent = active
+        ? `⏳ ${formatCooldownText(getVoteCooldownRemainingMs())}`
+        : '';
+
+      state.candidates.forEach(cand => {
+        const btn = document.createElement('button');
+        btn.className = 'vote-popup-btn';
+        btn.disabled = active || state.isVotingComplete;
+        btn.innerHTML = `
+          <div class="vote-popup-num">${cand.id}</div>
+          <div class="vote-popup-info">
+            <div class="vote-popup-label">기호 ${cand.id}번</div>
+            <div class="vote-popup-name">${cand.name}</div>
+          </div>
+        `;
+        btn.addEventListener('click', () => registerVoteByValue(cand.id));
+        refs.votePopupGrid.appendChild(btn);
+      });
+
+      refs.votePopupBackdrop.classList.toggle('show', state.isVotePopupOpen && !state.isVotingComplete);
+    }
+
     function renderVoting() {
       refs.voteNoteChips.innerHTML = '';
-      refs.voteTouchGrid.innerHTML = '';
 
       state.candidates.forEach(cand => {
         const chip = document.createElement('div');
         chip.className = 'vote-note-chip';
         chip.textContent = `${cand.id}번 ${cand.name}`;
         refs.voteNoteChips.appendChild(chip);
-
-        const touchBtn = document.createElement('button');
-        touchBtn.className = 'vote-touch-btn';
-        touchBtn.innerHTML = `
-          <div class="vote-touch-num">${cand.id}</div>
-          <div class="vote-touch-info">
-            <div class="vote-touch-label">기호 ${cand.id}번</div>
-            <div class="vote-touch-name">${cand.name}</div>
-          </div>
-        `;
-        touchBtn.addEventListener('click', () => {
-          registerVoteByValue(cand.id);
-        });
-        refs.voteTouchGrid.appendChild(touchBtn);
       });
 
       refs.voteProgressCurrent.textContent = state.voteList.length;
@@ -3807,6 +4182,15 @@
 
       refs.votingActiveWrap.style.display = state.isVotingComplete ? 'none' : 'block';
       refs.votingCompleteWrap.style.display = state.isVotingComplete ? 'block' : 'none';
+
+      if (state.isVotingComplete) {
+        closeVotePopup(true);
+      } else if (state.currentStep === 4 && state.isVotePopupOpen) {
+        refs.votePopupBackdrop.classList.add('show');
+      }
+
+      renderVoteCooldownState();
+      renderVotePopup();
     }
 
     function renderCounting() {
@@ -4031,6 +4415,7 @@
     refs.endBtn.addEventListener('click', handleEndElection);
 
     refs.goCountingBtn.addEventListener('click', () => {
+      closeVotePopup(true);
       state.currentStep = 5;
       render();
     });
@@ -4044,6 +4429,10 @@
 
     refs.downloadTxtBtn.addEventListener('click', downloadTxt);
     refs.downloadImageBtn.addEventListener('click', downloadImage);
+
+    refs.smartVoteOpenBtn.addEventListener('click', () => {
+      openVotePopup();
+    });
 
     window.addEventListener('keydown', handleVoteKey);
     window.addEventListener('resize', setViewportHeightVar);
